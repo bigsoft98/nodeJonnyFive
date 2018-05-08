@@ -19,21 +19,30 @@ mqttClient.subscribe(yellowLedCommandTopic);
 board.on("ready", function() {
     
     yellowLed = new five.Led(4);
+    flameSensor = new five.Sensor("A2");
     tempSensor = new five.Thermometer({
         controller: "LM35",
         pin: "A0"
     });
+    
 
 
-
-
+    var oldTempData = 0;
     tempSensor.on("change", function() {
         currentCelsius = this.celsius;
         currentFahrenheit = this.fahrenheit;
         console.log(currentCelsius + "°C", currentFahrenheit + "°F");
-        console.log("Publish to topic "+tempSensorDataPublishTopic +" "+currentCelsius);
-        mqttClient.publish(tempSensorDataPublishTopic, currentCelsius += '');
+        if(Math.abs(oldTempData-currentFahrenheit)>1){
+            console.log("Publish to topic "+tempSensorDataPublishTopic +" "+currentCelsius);
+            mqttClient.publish(tempSensorDataPublishTopic, currentCelsius += '');
+            //console.log("Temp difference is "+Math.abs(oldTempData-currentFahrenheit));
+        }else{
+            //console.log("Temp difference is "+Math.abs(oldTempData-currentFahrenheit));
+        }
+        oldTempData = currentFahrenheit;
     });
+
+
 
     mqttClient.on('message', function (topic, payload) {
         var message = payload.toString();
