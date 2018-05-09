@@ -22,24 +22,18 @@ board.on("ready", function() {
     flameSensor = new five.Sensor("A2");
     tempSensor = new five.Thermometer({
         controller: "LM35",
-        pin: "A0"
+        pin: "A0",
+        freq: 1000
     });
     
 
 
-    var oldTempData = 0;
     tempSensor.on("change", function() {
         currentCelsius = this.celsius;
         currentFahrenheit = this.fahrenheit;
         console.log(currentCelsius + "°C", currentFahrenheit + "°F");
-        if(Math.abs(oldTempData-currentFahrenheit)>1){
-            console.log("Publish to topic "+tempSensorDataPublishTopic +" "+currentCelsius);
-            mqttClient.publish(tempSensorDataPublishTopic, currentCelsius += '');
-            //console.log("Temp difference is "+Math.abs(oldTempData-currentFahrenheit));
-        }else{
-            //console.log("Temp difference is "+Math.abs(oldTempData-currentFahrenheit));
-        }
-        oldTempData = currentFahrenheit;
+        console.log("Publish to topic "+tempSensorDataPublishTopic +" "+currentCelsius);
+        mqttClient.publish(tempSensorDataPublishTopic, currentCelsius += '');
     });
 
 
